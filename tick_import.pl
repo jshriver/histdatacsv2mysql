@@ -13,7 +13,7 @@ my $ticker = $t_a[2];
 
 
 # Create table for ticker
-my $dbh = DBI->connect("DBI:mysql:database=forex;host=localhost", "ai", "aibot");
+my $dbh = DBI->connect("DBI:mysql:database=dbname;host=localhost", "username", "password");
 my $sth = $dbh->prepare("create table $ticker (date datetime, bid float, ask float)");
 $sth->execute();
 
