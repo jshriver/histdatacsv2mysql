@@ -13,8 +13,12 @@ my $ticker = $t_a[2];
 
 
 # Create table for ticker
-my $dbh = DBI->connect("DBI:mysql:database=dbName;host=localhost", "user", "password");
+my $dbh = DBI->connect("DBI:mysql:database=forex;host=localhost", "ai", "aibot");
 my $sth = $dbh->prepare("create table $ticker (date datetime, bid float, ask float)");
+$sth->execute();
+
+# Enable table compress, requires "innodb_file_per_table=1" in my.cnf
+$sth = $dbh->prepare("ALTER TABLE $ticker engine=InnoDB row_format=compressed key_block_size=16");
 $sth->execute();
 
 # Get list of files to parse
@@ -36,6 +40,8 @@ foreach my $file (@ARGV) {
                 my @tick = split /,/, $_;
 		my $bid = $tick[1];
 		my $ask = $tick[2];
+		$bid =~ s/^\s*(.*?)\s*$/$1/; # DAT_ASCII_EURUSD2_T_200403.csv  remove whitespace 
+		$ask =~ s/^\s*(.*?)\s*$/$1/;
 		my $date = Time::Piece->strptime($tick[0] =~ s/[0-9]{3}\z//r, "%Y%m%d %H%M%S")->strftime("%F %T");
 
 		$query .= "(\"$date\", \"$bid\", \"$ask\"), ";
